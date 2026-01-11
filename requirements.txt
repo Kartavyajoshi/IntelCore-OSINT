@@ -1,0 +1,11 @@
+flask
+requests
+pandas
+openpyxl
+fpdf
+xlsxwriter
+beautifulsoup4
+lxml
+dnspython
+reportlab
+matplotlib

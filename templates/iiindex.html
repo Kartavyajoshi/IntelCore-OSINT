@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelCore | Threat Intelligence Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --primary: #0f172a;
+            /* Slate 900 */
+            --accent: #2563eb;
+            /* Royal Blue */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            min-height: 100vh;
+            position: fixed;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            padding: 12px 20px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent);
+            background: #f1f5f9;
+            border-left-color: var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            background: var(--bg-card);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Tabs Professional Styling */
+        .nav-tabs {
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: transparent;
+            color: var(--accent);
+        }
+
+        /* Source Badge */
+        .source-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Risk Score */
+        .risk-indicator {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 8px solid #f1f5f9;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .risk-high {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .risk-med {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .risk-low {
+            border-color: var(--success);
+            color: var(--success);
+            background: #f0fdf4;
+        }
+
+        /* Tables */
+        .table thead th {
+            background: #f8fafc;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        /* Loaders */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar d-none d-lg-block">
+        <div class="sidebar-header">
+            <i class="fas fa-layer-group text-primary"></i> INTELCORE
+        </div>
+        <ul class="nav flex-column mt-3 nav-pills" id="mainMenu" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active w-100 text-start" data-bs-toggle="pill" data-bs-target="#view-recon">
+                    <i class="fas fa-search me-3"></i>Reconnaissance
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#view-history">
+                    <i class="fas fa-history me-3"></i>Scan History
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#view-reports">
+                    <i class="fas fa-file-export me-3"></i>Reports
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#view-settings">
+                    <i class="fas fa-cog me-3"></i>Settings
+                </button>
+            </li>
+        </ul>
+        <div class="mt-auto p-4 border-top">
+            <small class="text-muted d-block mb-1">System Status</small>
+            <div class="d-flex align-items-center text-success small">
+                <i class="fas fa-circle me-2" style="font-size: 8px;"></i> All Systems Operational
+            </div>
+        </div>
+    </div>
+
+
+    <div class="main-content">
+        <div class="tab-content" id="mainTabContent">
+
+            <div class="tab-pane fade show active" id="view-recon" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1 text-primary">Target Intelligence Assessment</h4>
+                        <p class="text-muted mb-0">Passive OSINT Analysis Module v2.4</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-white border bg-white"><i
+                                class="fas fa-download me-2 text-muted"></i>Export PDF</button>
+                        <button class="btn btn-primary bg-primary" onclick="startScan()"><i
+                                class="fas fa-plus me-2"></i>New Scan</button>
+                    </div>
+                </div>
+
+                <div class="card p-4 border-0 shadow-sm mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-10">
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 text-muted"><i
+                                        class="fas fa-globe"></i></span>
+                                <input type="text" id="targetInput" class="form-control border-start-0 ps-0"
+                                    placeholder="Enter target domain (e.g. tesla.com)" value="example.com">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100 h-100" id="scanButton"
+                                onclick="startScan()">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <h5 class="text-dark">Aggregating Intelligence...</h5>
+                    <p class="text-muted">Querying Shodan, Whois, VirusTotal, and CT Logs</p>
+                </div>
+
+                <div id="resultsArea" style="display: none;">
+
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card p-3 h-100 border-start border-4 border-primary shadow-sm">
+                                <div class="text-muted small text-uppercase mb-1">Subdomains</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="mb-0 fw-bold" id="statSubdomains">0</h2>
+                                    <span class="badge bg-light text-dark border"><i class="fas fa-server"></i>
+                                        CRT.SH</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card p-3 h-100 border-start border-4 border-warning shadow-sm">
+                                <div class="text-muted small text-uppercase mb-1">Open Ports</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="mb-0 fw-bold" id="statPorts">0</h2>
+                                    <span class="badge bg-light text-dark border"><i class="fas fa-search"></i>
+                                        SHODAN</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card p-3 h-100 border-start border-4 border-danger shadow-sm">
+                                <div class="text-muted small text-uppercase mb-1">Compromised Emails</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="mb-0 fw-bold" id="statEmails">0</h2>
+                                    <span class="badge bg-light text-dark border"><i class="fas fa-database"></i>
+                                        HIBP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card p-3 h-100 border-start border-4 border-success shadow-sm">
+                                <div class="text-muted small text-uppercase mb-1">Threat Status</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="mb-0 fw-bold text-success" id="verdict">CLEAN</h2>
+                                    <span class="badge bg-light text-dark border"><i class="fas fa-shield-alt"></i>
+                                        VT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab"
+                                data-bs-target="#tab-overview">Overview</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                data-bs-target="#tab-infra">Infrastructure</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                data-bs-target="#tab-subs">Subdomains</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                data-bs-target="#tab-security">Security & SSL</button></li>
+                    </ul>
+
+                    <div class="tab-content mt-3">
+
+                        <div class="tab-pane fade show active" id="tab-overview">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="card text-center p-4 h-100 shadow-sm border-0">
+                                        <h6 class="text-muted text-uppercase mb-4">Composite Risk Score</h6>
+                                        <div class="risk-indicator mx-auto d-flex align-items-center justify-content-center rounded-circle border border-5 mb-3"
+                                            style="width:120px; height:120px; font-size: 2.5rem;" id="riskBadge">0</div>
+                                        <h5 class="fw-bold" id="riskLevel">Loading...</h5>
+                                        <p class="text-muted small px-3">Score based on open ports, exposed emails, and
+                                            SSL validity.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-header bg-white fw-bold">Key Findings</div>
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush" id="keyFindings">
+                                                <li class="list-group-item text-muted">Run a scan to see findings...
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-infra">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-header bg-white fw-bold">DNS Records</div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="dnsTable"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-header bg-white fw-bold">Whois Info</div>
+                                        <div class="card-body" id="whoisData"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-subs">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-white fw-bold">Discovered Subdomains</div>
+                                <div class="card-body">
+                                    <div class="row g-3" id="subdomainGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-security">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-header bg-white fw-bold">SSL Certificate</div>
+                                        <div class="card-body" id="sslData"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-header bg-white fw-bold">Reputation Check</div>
+                                        <div class="card-body" id="vtData">
+                                            <p>VirusTotal Score: <strong id="vtScore">Clean</strong></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="view-history" role="tabpanel">
+                <h4 class="mb-4 text-primary">Scan History Log</h4>
+                <div class="card border-0 shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Target Domain</th>
+                                    <th>Date Scanned</th>
+                                    <th>Risk Score</th>
+                                    <th>Findings</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4 fw-bold">tesla.com</td>
+                                    <td class="text-muted">Oct 24, 2023 14:30</td>
+                                    <td><span class="badge bg-danger">HIGH (85)</span></td>
+                                    <td>12 Open Ports, 4 Exposed DBs</td>
+                                    <td><i class="fas fa-check text-success me-1"></i> Completed</td>
+                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4 fw-bold">example.org</td>
+                                    <td class="text-muted">Oct 22, 2023 09:15</td>
+                                    <td><span class="badge bg-success">LOW (12)</span></td>
+                                    <td>Clean SSL, No leaks</td>
+                                    <td><i class="fas fa-check text-success me-1"></i> Completed</td>
+                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="view-reports" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1 text-primary">Intelligence Reports</h4>
+                        <p class="text-muted mb-0">Manage and export compliance and threat reports.</p>
+                    </div>
+                    <button class="btn btn-primary"><i class="fas fa-plus me-2"></i>Generate New Report</button>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm bg-primary text-white h-100">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="fw-bold mb-0">24</h2>
+                                    <small class="text-white-50">Total Reports</small>
+                                </div>
+                                <div class="fs-1 text-white-50"><i class="fas fa-file-alt"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm h-100">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="fw-bold mb-0 text-dark">8</h2>
+                                    <small class="text-muted">Compliance Audits</small>
+                                </div>
+                                <div class="fs-1 text-muted opacity-25"><i class="fas fa-clipboard-check"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Generated Documents</span>
+                        <div class="input-group" style="width: 250px;">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search reports...">
+                            <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Report Name</th>
+                                    <th>Type</th>
+                                    <th>Generated By</th>
+                                    <th>Date</th>
+                                    <th>Format</th>
+                                    <th class="text-end pe-4">Download</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light p-2 rounded me-3"><i
+                                                    class="fas fa-file-pdf text-danger"></i></div>
+                                            <div>
+                                                <div class="fw-bold">Q3_Threat_Analysis_Tesla</div>
+                                                <div class="small text-muted">ID: #RPT-2023-884</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">Deep Scan</span></td>
+                                    <td>System Auto</td>
+                                    <td>Oct 24, 2023</td>
+                                    <td>PDF (2.4MB)</td>
+                                    <td class="text-end pe-4"><button class="btn btn-sm btn-white border"><i
+                                                class="fas fa-download"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light p-2 rounded me-3"><i
+                                                    class="fas fa-file-csv text-success"></i></div>
+                                            <div>
+                                                <div class="fw-bold">Raw_Assets_Export</div>
+                                                <div class="small text-muted">ID: #RPT-2023-881</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">Asset Inventory</span></td>
+                                    <td>Admin User</td>
+                                    <td>Oct 20, 2023</td>
+                                    <td>CSV (120KB)</td>
+                                    <td class="text-end pe-4"><button class="btn btn-sm btn-white border"><i
+                                                class="fas fa-download"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="view-settings" role="tabpanel">
+                <h4 class="mb-4 text-primary">System Configuration</h4>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="list-group shadow-sm">
+                            <a href="#" class="list-group-item list-group-item-action active"><i
+                                    class="fas fa-key me-2"></i> API Keys</a>
+                            <a href="#" class="list-group-item list-group-item-action"><i
+                                    class="fas fa-user-shield me-2"></i> Account Security</a>
+                            <a href="#" class="list-group-item list-group-item-action"><i class="fas fa-bell me-2"></i>
+                                Notifications</a>
+                            <a href="#" class="list-group-item list-group-item-action"><i
+                                    class="fas fa-paint-brush me-2"></i> Appearance</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white py-3 fw-bold">External API Integrations</div>
+                            <div class="card-body">
+                                <p class="text-muted small">Configure keys to access external threat databases. These
+                                    are stored locally in your browser session.</p>
+
+                                <label class="form-label fw-bold mt-2">VirusTotal API Key</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text bg-light"><i class="fas fa-shield-alt"></i></span>
+                                    <input type="password" class="form-control"
+                                        value="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                                    <button class="btn btn-outline-secondary">Update</button>
+                                </div>
+
+                                <label class="form-label fw-bold">Shodan API Key</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+                                    <input type="password" class="form-control"
+                                        value="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                                    <button class="btn btn-outline-secondary">Update</button>
+                                </div>
+
+                                <label class="form-label fw-bold">Hunter.io API Key (Email Discovery)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
+                                    <input type="password" class="form-control" placeholder="Enter API Key">
+                                    <button class="btn btn-outline-secondary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 fw-bold">Scan Preferences</div>
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="passiveMode" checked>
+                                    <label class="form-check-label" for="passiveMode">
+                                        <strong>Passive Mode Only</strong>
+                                        <div class="text-muted small">Do not send active packets to target. Use only
+                                            cached databases.</div>
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="autoReport">
+                                    <label class="form-check-label" for="autoReport">
+                                        <strong>Auto-Generate PDF</strong>
+                                        <div class="text-muted small">Automatically download PDF report after scan
+                                            completion.</div>
+                                    </label>
+                                </div>
+                                <hr>
+                                <button class="btn btn-success">Save Changes</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ==========================================
+        //  INTEGRATION SCRIPT FOR FLASK BACKEND
+        // ==========================================
+
+        async function startScan() {
+            const target = document.getElementById('targetInput').value;
+            if (!target) { alert("Please enter a domain"); return; }
+
+            // 1. UI Reset & Loading State
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsArea').style.display = 'none';
+
+            // Show progress steps (Mock visual, actual logic happens in backend)
+            const loadingText = document.querySelector('#loading h5');
+            loadingText.innerText = "Initializing Scanners...";
+
+            try {
+                // 2. Call Flask API
+                const response = await fetch('/api/passive-scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target: target })
+                });
+
+                if (!response.ok) throw new Error("Scan failed on server");
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                // 3. Render Real Data
+                renderDashboard(data);
+
+                // 4. Show Results
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultsArea').style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                alert("Connection Failed: Ensure Flask is running on port 5000");
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function renderDashboard(data) {
+            // --- 1. STATISTICS ---
+            // Mapping Python API Keys to HTML IDs
+            safeSetText('statSubdomains', data.subdomains?.count || 0);
+            safeSetText('statPorts', data.shodan?.Ports?.length || 0);
+
+            // Calculate total emails (Scraped + Hunter)
+            const totalEmails = (data.forensics?.Emails?.length || 0) + (data.hunter?.emails?.length || 0);
+            safeSetText('statEmails', totalEmails);
+
+            // --- 2. VERDICT & RISK ---
+            const vtScore = data.virustotal?.malicious || 0;
+            const verdictEl = document.getElementById('verdict');
+            if (vtScore > 0) {
+                verdictEl.innerText = "SUSPICIOUS";
+                verdictEl.className = "mb-0 fw-bold text-danger";
+            } else {
+                verdictEl.innerText = "CLEAN";
+                verdictEl.className = "mb-0 fw-bold text-success";
+            }
+
+            const riskScore = data.risk_score?.score || 0;
+            const riskBadge = document.getElementById('riskBadge');
+            riskBadge.innerText = riskScore;
+
+            // Color coding risk
+            riskBadge.className = "risk-indicator mx-auto d-flex align-items-center justify-content-center rounded-circle border border-5 mb-3";
+            if (riskScore > 70) riskBadge.classList.add("text-danger", "border-danger", "bg-danger", "bg-opacity-10");
+            else if (riskScore > 40) riskBadge.classList.add("text-warning", "border-warning", "bg-warning", "bg-opacity-10");
+            else riskBadge.classList.add("text-success", "border-success", "bg-success", "bg-opacity-10");
+
+            document.getElementById('riskLevel').innerText = data.risk_score?.level || "Unknown";
+
+            // --- 3. KEY FINDINGS ---
+            const findingsList = document.getElementById('keyFindings');
+            findingsList.innerHTML = ""; // Clear old
+            const factors = data.risk_score?.factors || [];
+
+            if (factors.length === 0) {
+                findingsList.innerHTML = `<li class="list-group-item text-success"><i class="fas fa-check-circle me-2"></i> No high-risk factors detected.</li>`;
+            } else {
+                factors.forEach(f => {
+                    findingsList.innerHTML += `<li class="list-group-item"><i class="fas fa-exclamation-triangle text-warning me-2"></i> ${f}</li>`;
+                });
+            }
+
+            // --- 4. DNS TABLE ---
+            const dnsTable = document.getElementById('dnsTable');
+            dnsTable.innerHTML = "";
+            const records = data.dns?.records || {};
+
+            // Iterate over A, MX, NS
+            Object.keys(records).forEach(type => {
+                records[type].forEach(value => {
+                    dnsTable.innerHTML += `<tr><td class="fw-bold small text-muted">${type}</td><td class="font-monospace text-primary">${value}</td></tr>`;
+                });
+            });
+
+            // --- 5. WHOIS INFO ---
+            const whois = data.whois || {};
+            document.getElementById('whoisData').innerHTML = `
+            <ul class="list-unstyled mb-0">
+                <li class="mb-2"><strong>Created:</strong> ${whois.created || 'N/A'}</li>
+                <li class="mb-2"><strong>Expires:</strong> ${whois.expires || 'N/A'}</li>
+                <li><strong>Nameservers:</strong> ${(whois.nameservers || []).join(', ')}</li>
+            </ul>
+        `;
+
+            // --- 6. SUBDOMAINS GRID ---
+            const grid = document.getElementById('subdomainGrid');
+            grid.innerHTML = "";
+            const subs = data.subdomains?.subdomains || [];
+            subs.forEach(s => {
+                grid.innerHTML += `<div class="col-md-3"><div class="p-2 border rounded bg-light small text-truncate"><i class="fas fa-globe text-muted me-2"></i>${s}</div></div>`;
+            });
+
+            // --- 7. SECURITY / SSL ---
+            const sslCerts = data.ssl?.total_certs || 0;
+            document.getElementById('sslData').innerHTML = `
+             <div class="d-flex align-items-center mb-3">
+                <div class="fs-4 me-3"><i class="fas fa-certificate text-primary"></i></div>
+                <div>
+                    <div class="fw-bold">${sslCerts} Certificates</div>
+                    <div class="text-muted small">Found in Transparency Logs</div>
+                </div>
+            </div>
+            <p class="small">WAF Status: <strong>${data.waf_detection?.has_waf ? data.waf_detection.waf_name : 'No WAF Detected'}</strong></p>
+        `;
+        }
+
+        // Helper to prevent crashes if ID missing
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1017 @@
+
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelCore | Professional OSINT Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --dark-bg: #1a202c;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            min-height: 100vh;
+            position: fixed;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--primary), #1e293b);
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link {
+            color: #475569;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            background: var(--light-bg);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            background: rgba(37, 99, 235, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+
+        .loading-overlay.active { display: flex; }
+
+        .stat-card {
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.critical { border-left-color: var(--danger); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.success { border-left-color: var(--success); }
+
+        .btn-tab {
+            border: 2px solid var(--border-color);
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-tab:hover, .btn-tab.active {
+            border-color: var(--accent);
+            color: white;
+            background: var(--accent);
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            background: var(--light-bg);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            cursor: help;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-badge:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .source-tag {
+            font-size: 0.7rem;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--accent);
+            padding: 3px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .table-scroll {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .risk-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .risk-critical { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .risk-high { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .risk-medium { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+        .risk-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+        .header-section {
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .header-section h4 {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .code-block {
+            background: var(--dark-bg);
+            color: #10b981;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .status-200 { color: var(--success); }
+        .status-301 { color: var(--warning); }
+        .status-302 { color: var(--warning); }
+        .status-401 { color: #f97316; }
+        .status-403 { color: var(--danger); }
+
+        .progress-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: var(--light-bg);
+            border-left: 3px solid transparent;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-item.done {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .progress-item.active {
+            border-left-color: var(--accent);
+            background: rgba(37, 99, 235, 0.1);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 20px; }
+        }
+
+        .alert-custom {
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar d-none d-lg-block">
+    <div class="sidebar-header">
+        <i class="fas fa-shield-alt"></i> INTELCORE
+    </div>
+    <ul class="nav flex-column mt-3">
+        <li><a class="nav-link active" onclick="switchTab('scan')"><i class="fas fa-search me-2"></i>Scan</a></li>
+        <li><a class="nav-link" onclick="switchTab('settings')"><i class="fas fa-cogs me-2"></i>Settings</a></li>
+        <li><a class="nav-link" onclick="switchTab('history')"><i class="fas fa-history me-2"></i>History</a></li>
+        <li><a class="nav-link" onclick="switchTab('docs')"><i class="fas fa-book me-2"></i>Documentation</a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-4" style="width: 60px; height: 60px;"></div>
+            <h5 class="mb-3">Executing 11 Reconnaissance Modules...</h5>
+            <div id="progressList" style="width: 450px;"></div>
+        </div>
+    </div>
+
+    <!-- SCAN TAB -->
+    <div id="scan" class="tab-pane active">
+        <div class="header-section">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4>OSINT Reconnaissance Platform</h4>
+                    <p class="text-muted mb-0">Comprehensive passive security intelligence gathering</p>
+                </div>
+                <button class="btn btn-primary" id="downloadBtn" onclick="downloadReport()" style="display:none;">
+                    <i class="fas fa-file-pdf me-2"></i>Download Report
+                </button>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+            <div class="row g-2">
+                <div class="col-md-9">
+                    <input type="text" id="targetInput" class="form-control form-control-lg" 
+                           placeholder="Enter target domain (e.g., example.com)" value="example.com">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100 btn-lg" onclick="startScan()">
+                        <i class="fas fa-play me-2"></i>Start Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsArea" style="display:none;">
+            <!-- STATISTICS DASHBOARD -->
+            <div class="row mb-4 g-3">
+                <div class="col-md-3">
+                    <div class="stat-card critical">
+                        <small class="text-muted">Risk Score</small>
+                        <h2 class="mb-0" id="riskScore">0</h2>
+                        <small id="riskLevel" class="badge bg-danger mt-2">-</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card warning">
+                        <small class="text-muted">Subdomains</small>
+                        <h2 class="mb-0" id="subCount">0</h2>
+                        <small class="text-muted d-block">discovered</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card critical">
+                        <small class="text-muted">Breaches</small>
+                        <h2 class="mb-0" id="breachCount">0</h2>
+                        <small class="text-muted d-block">accounts</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card success">
+                        <small class="text-muted">Modules</small>
+                        <h2 class="mb-0" id="moduleCount">0<small>/11</small></h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB NAVIGATION -->
+            <div class="card p-3 mb-4">
+                <div class="btn-group flex-wrap w-100" role="group">
+                    <button type="button" class="btn-tab active" onclick="switchResultTab('overview')">Overview</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('dns')">DNS & Infra</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('shodan')">Shodan</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('security')">Security</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('breaches')">Breaches</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('forensics')">Forensics</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('directories')">Directories</button>
+                    <button type="button" class="btn-tab" onclick="switchResultTab('emails')">Email Intel</button>
+                </div>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div id="overview-tab" class="tab-pane active">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">WHOIS Information <span class="source-tag">WHOIS</span></h6>
+                            <p><strong>Domain:</strong> <code id="domainName">-</code></p>
+                            <p><strong>Registrar:</strong> <span id="registrar">-</span></p>
+                            <p><strong>Created:</strong> <code id="created">-</code></p>
+                            <p><strong>Expires:</strong> <code id="expires">-</code></p>
+                            <p><strong>Status:</strong> <span id="domainStatus" class="badge bg-success">-</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Reputation & Threat <span class="source-tag">VirusTotal</span></h6>
+                            <p><strong>VirusTotal:</strong> <span id="vtStatus" class="badge bg-success">Clean</span></p>
+                            <p><strong>Malicious:</strong> <span id="malicious" class="badge bg-success">0</span></p>
+                            <p><strong>Community Rep:</strong> <span id="reputation">N/A</span></p>
+                            <p><strong>Threat Tags:</strong> <span id="threatTags">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DNS TAB -->
+            <div id="dns-tab" class="tab-pane">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">DNS Records <span class="source-tag">DNS</span></h6>
+                            <div class="table-scroll">
+                                <table class="table table-sm">
+                                    <thead><tr><th>Type</th><th>Value</th></tr></thead>
+                                    <tbody id="dnsRecords"><tr><td colspan="2">-</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Security Policies</h6>
+                            <p><strong>SPF:</strong><div class="code-block" id="spf">-</div></p>
+                            <p><strong>DMARC:</strong><div class="code-block" id="dmarc">-</div></p>
+                            <p><strong>Mail Provider:</strong> <span id="mailProvider" class="badge bg-info">-</span></p>
+                            <p><strong>Cloud:</strong> <span id="cloudProvider">-</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mt-3">
+                    <h6 class="section-title">Discovered Subdomains <span class="source-tag">CT Logs</span></h6>
+                    <div id="subdomainList"></div>
+                </div>
+            </div>
+
+            <!-- SHODAN TAB -->
+            <div id="shodan-tab" class="tab-pane">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Geolocation <span class="source-tag">Shodan</span></h6>
+                            <p><strong>IP:</strong> <code id="shodanIp">-</code></p>
+                            <p><strong>Country:</strong> <span id="country">-</span></p>
+                            <p><strong>City:</strong> <span id="city">-</span></p>
+                            <p><strong>Organization:</strong> <span id="org">-</span></p>
+                            <p><strong>ISP:</strong> <span id="isp">-</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Infrastructure</h6>
+                            <p><strong>OS:</strong> <span id="os">-</span></p>
+                            <p><strong>Last Updated:</strong> <span id="lastUpdate">-</span></p>
+                            <p><strong>Hostnames:</strong><div id="hostnames" style="margin-top:8px;"></div></p>
+                            <p><strong>Tags:</strong><div id="tags" style="margin-top:8px;"></div></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mt-3">
+                    <h6 class="section-title">Open Ports & Services <span class="source-tag">Shodan</span></h6>
+                    <div class="table-scroll">
+                        <table class="table table-sm">
+                            <thead><tr><th>Port</th><th>Service</th><th>Product</th><th>Version</th></tr></thead>
+                            <tbody id="portTable"><tr><td colspan="4">-</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card p-4 mt-3">
+                    <h6 class="section-title">CVE Vulnerabilities <span class="source-tag">Shodan</span></h6>
+                    <div id="vulnList"></div>
+                </div>
+            </div>
+
+            <!-- SECURITY TAB -->
+            <div id="security-tab" class="tab-pane">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">SSL Certificates <span class="source-tag">CT Logs</span></h6>
+                            <div id="certList"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">WAF Detection <span class="source-tag">Active Scan</span></h6>
+                            <div id="wafList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BREACHES TAB -->
+            <div id="breaches-tab" class="tab-pane">
+                <div class="card p-4">
+                    <h6 class="section-title">Compromised Credentials <span class="source-tag">LeakCheck</span></h6>
+                    <div class="table-scroll">
+                        <table class="table table-sm">
+                            <thead><tr><th>Email</th><th>Risk</th><th>Data</th><th>Breaches</th></tr></thead>
+                            <tbody id="breachTable"><tr><td colspan="4">-</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORENSICS TAB -->
+            <div id="forensics-tab" class="tab-pane">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Emails <span class="source-tag">Web Scraping</span></h6>
+                            <div id="emailList"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Phone Numbers</h6>
+                            <div id="phoneList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mt-3">
+                    <h6 class="section-title">Documents</h6>
+                    <div id="docList"></div>
+                </div>
+            </div>
+
+            <!-- DIRECTORIES TAB -->
+            <div id="directories-tab" class="tab-pane">
+                <div class="card p-4">
+                    <h6 class="section-title">Exposed Directories <span class="source-tag">HTTP Validation</span></h6>
+                    <div id="directoriesList"></div>
+                </div>
+            </div>
+            <!-- EMAIL ENUMERATION TAB -->
+            <div id="emails-tab" class="tab-pane">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Email Statistics <span class="source-tag">Enumeration</span></h6>
+                            <p><strong>Total Emails Found:</strong> <span id="totalEmails" class="badge bg-info">0</span></p>
+                            <p><strong>Valid Emails:</strong> <span id="validEmails" class="badge bg-success">0</span></p>
+                            <p><strong>Invalid Emails:</strong> <span id="invalidEmails" class="badge bg-warning">0</span></p>
+                            <p><strong>Risky Emails:</strong> <span id="riskyEmails" class="badge bg-danger">0</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Mail Infrastructure <span class="source-tag">DNS</span></h6>
+                            <p><strong>MX Records:</strong> <span id="mxCount" class="badge bg-info">0</span></p>
+                            <p><strong>Critical Risks:</strong> <span id="emailRisks" class="badge bg-danger">0</span></p>
+                            <p><strong>SPF Record:</strong> <span id="spfStatus" class="badge bg-secondary">-</span></p>
+                            <p><strong>DMARC Record:</strong> <span id="dmarcStatus" class="badge bg-secondary">-</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Admin Accounts</h6>
+                            <div id="adminEmails"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Support/Contact Accounts</h6>
+                            <div id="supportEmails"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Personal Accounts</h6>
+                            <div id="personalEmails"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h6 class="section-title">Service/Automated Accounts</h6>
+                            <div id="serviceEmails"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-3">
+                    <h6 class="section-title">All Discovered Emails with Validation</h6>
+                    <div class="table-scroll">
+                        <table class="table table-sm">
+                            <thead><tr><th>Email</th><th>Format</th><th>SMTP</th><th>Risks</th></tr></thead>
+                            <tbody id="emailTable"><tr><td colspan="4">-</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card p-4">
+                    <h6 class="section-title">Mail Server Information <span class="source-tag">MX Records</span></h6>
+                    <div class="table-scroll">
+                        <table class="table table-sm">
+                            <thead><tr><th>Mail Server</th><th>Priority</th><th>Provider Type</th></tr></thead>
+                            <tbody id="mxTable"><tr><td colspan="3">-</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="settings" class="tab-pane">
+        <div class="header-section">
+            <h4><i class="fas fa-cogs me-2"></i>Platform Configuration</h4>
+            <p class="text-muted mb-0">Manage API keys and scanning preferences</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h6 class="section-title">External API Keys</h6>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Shodan API Key</strong></label>
+                        <input type="password" class="form-control" id="shodanKey" placeholder="Leave blank for default">
+                        <small class="text-muted">Internet-wide device scanner</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>VirusTotal API Key</strong></label>
+                        <input type="password" class="form-control" id="vtKey" placeholder="Optional for enhanced threat intel">
+                        <small class="text-muted">Threat intelligence aggregation</small>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveApiKeys()">
+                        <i class="fas fa-save me-2"></i>Save Configuration
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h6 class="section-title">Scanning Preferences</h6>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="deepScan" checked>
+                        <label class="form-check-label" for="deepScan">
+                            <strong>Deep Reconnaissance</strong>
+                            <div class="text-muted small">Scan more subdomains and directories (slower)</div>
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="validateDirs" checked>
+                        <label class="form-check-label" for="validateDirs">
+                            <strong>HTTP Validation</strong>
+                            <div class="text-muted small">Verify directory existence with HTTP requests</div>
+                        </label>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetSettings()">
+                        <i class="fas fa-redo me-2"></i>Reset to Defaults
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="history" class="tab-pane">
+        <div class="header-section">
+            <h4><i class="fas fa-history me-2"></i>Scan History</h4>
+            <p class="text-muted mb-0">Previous reconnaissance scans</p>
+        </div>
+
+        <div class="card">
+            <div class="table-scroll">
+                <table class="table table-hover">
+                    <thead class="table-light"><tr><th>Target</th><th>Date</th><th>Risk Level</th><th>Score</th></tr></thead>
+                    <tbody id="historyTable"><tr><td colspan="4" class="text-muted">No history</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENTATION TAB -->
+    <div id="docs" class="tab-pane">
+        <div class="header-section">
+            <h4><i class="fas fa-book me-2"></i>Documentation & Help</h4>
+        </div>
+
+        <div class="card p-4 mb-3">
+            <h6 class="section-title">About INTELCORE</h6>
+            <p>IntelCore is a professional OSINT (Open Source Intelligence) platform for passive reconnaissance and security assessment. 
+            All scanning is non-invasive and utilizes publicly available data sources.</p>
+        </div>
+
+        <div class="card p-4 mb-3">
+            <h6 class="section-title">Scanning Modules (11 Total)</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <ol>
+                        <li><strong>Certificate Transparency Logs</strong> - Subdomain discovery from signed SSL certificates</li>
+                        <li><strong>DNS Reconnaissance</strong> - Passive enumeration of DNS records and email security policies</li>
+                        <li><strong>WHOIS Lookup</strong> - Domain registration and ownership information</li>
+                        <li><strong>Shodan Intelligence</strong> - Internet-wide device scanning and vulnerability data</li>
+                        <li><strong>VirusTotal</strong> - Threat intelligence and malware detection aggregation</li>
+                        <li><strong>WAF Detection</strong> - Web Application Firewall identification</li>
+                    </ol>
+                </div>
+                <div class="col-md-6">
+                    <ol start="7">
+                        <li><strong>Directory Enumeration</strong> - Discovery of hidden files with HTTP status validation</li>
+                        <li><strong>Forensic Details</strong> - Email, phone, and document extraction via web scraping</li>
+                        <li><strong>Breach Database</strong> - Dark web credential compromise checking (LeakCheck)</li>
+                        <li><strong>Risk Calculation</strong> - Composite threat scoring algorithm</li>
+                        <li><strong>PDF Report</strong> - Professional comprehensive security report generation</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-3">
+            <h6 class="section-title">Data Sources & Attribution</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Certificate Data:</strong> crt.sh</p>
+                    <p><strong>DNS & Infrastructure:</strong> HackerTarget</p>
+                    <p><strong>Device Scanning:</strong> Shodan</p>
+                    <p><strong>Threat Intelligence:</strong> VirusTotal</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Breach Detection:</strong> LeakCheck</p>
+                    <p><strong>Historical Data:</strong> Wayback Machine</p>
+                    <p><strong>Domain Registration:</strong> WHOIS Servers</p>
+                    <p><strong>Web Content:</strong> Direct Scraping</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-3">
+            <h6 class="section-title">HTTP Status Codes (Directories)</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><span class="badge bg-success">200</span> <strong>OK</strong> - Directory/File exists and accessible</p>
+                    <p><span class="badge bg-warning">301/302</span> <strong>Redirect</strong> - Redirect to another location</p>
+                </div>
+                <div class="col-md-6">
+                    <p><span class="badge bg-info">401</span> <strong>Unauthorized</strong> - Requires authentication</p>
+                    <p><span class="badge bg-danger">403</span> <strong>Forbidden</strong> - Exists but access denied</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-3 border-warning">
+            <h6 class="section-title">⚠️Legal Disclaimer</h6>
+            <p>This tool is for authorized security professionals and defensive purposes only. 
+            All data collection is passive and derived from public sources. Unauthorized access to systems is illegal. 
+            Users are responsible for compliance with applicable laws and regulations.</p>
+        </div>
+
+        <div class="card p-4">
+            <h6 class="section-title">Getting Started</h6>
+            <ol>
+                <li>Enter a target domain in the input field (e.g., <code>example.com</code>)</li>
+                <li>Click the <strong>Start Scan</strong> button</li>
+                <li>Wait for all 11 modules to complete (2-5 minutes)</li>
+                <li>View results in the 7 organized tabs</li>
+                <li>Download the PDF report for documentation</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentData = null;
+    let apiKeys = JSON.parse(localStorage.getItem('apiKeys') || '{}');
+
+    const steps = ['CT Logs', 'DNS', 'WHOIS', 'Shodan', 'VirusTotal', 'WAF', 'Directories', 'Forensics', 'Breaches', 'Risk', 'Report'];
+
+    function switchTab(name) {
+        document.querySelectorAll('[id="scan"], [id="settings"], [id="history"], [id="docs"]').forEach(el => el.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        event.target.closest('.nav-link').classList.add('active');
+    }
+
+    function switchResultTab(name) {
+        document.querySelectorAll('[id$="-tab"]').forEach(el => el.classList.remove('active'));
+        document.getElementById(`${name}-tab`).classList.add('active');
+        document.querySelectorAll('.btn-tab').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    function saveApiKeys() {
+        apiKeys = {
+            shodan: document.getElementById('shodanKey').value || '',
+            virustotal: document.getElementById('vtKey').value
+        };
+        localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
+        alert('✓ Configuration saved successfully');
+    }
+
+    function resetSettings() {
+        if (confirm('Reset all settings to defaults?')) {
+            document.getElementById('shodanKey').value = '';
+            document.getElementById('vtKey').value = '';
+            document.getElementById('deepScan').checked = true;
+            document.getElementById('validateDirs').checked = true;
+            localStorage.removeItem('apiKeys');
+            apiKeys = {};
+            alert('✓ Settings reset');
+        }
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('active');
+        let html = '';
+        steps.forEach((s, i) => html += `<div class="progress-item" id="step-${i}"><i class="fas fa-hourglass-start me-2"></i>[${i+1}/11] ${s}</div>`);
+        document.getElementById('progressList').innerHTML = html;
+
+        let i = 0;
+        const timer = setInterval(() => {
+            if (i < steps.length) {
+                const el = document.getElementById(`step-${i}`);
+                if (el) {
+                    el.classList.add('done');
+                    el.innerHTML = `<i class="fas fa-check-circle text-success me-2"></i>[${i+1}/11] ${steps[i]}`;
+                }
+                if (i + 1 < steps.length && document.getElementById(`step-${i+1}`)) {
+                    document.getElementById(`step-${i+1}`).classList.add('active');
+                }
+                i++;
+            } else {
+                clearInterval(timer);
+            }
+        }, 500);
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    async function startScan() {
+        const target = document.getElementById('targetInput').value.trim();
+        if (!target) { alert('Enter domain'); return; }
+
+        showLoading();
+        document.getElementById('resultsArea').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/passive-scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target, api_keys: apiKeys })
+            });
+
+            if (!response.ok) throw new Error('Scan failed');
+            currentData = await response.json();
+            renderAllData(currentData);
+            hideLoading();
+            document.getElementById('resultsArea').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'block';
+            loadHistory();
+        } catch (error) {
+            alert('Error: ' + error.message);
+            hideLoading();
+        }
+    }
+
+    function renderAllData(data) {
+        console.log('Full Data:', data);
+
+        const score = data.risk_score?.score || 0;
+        const level = data.risk_score?.level || 'UNKNOWN';
+        document.getElementById('riskScore').innerText = score;
+        document.getElementById('riskLevel').innerText = level;
+        document.getElementById('riskLevel').className = `badge mt-2 ${level === 'CRITICAL' ? 'bg-danger' : level === 'HIGH' ? 'bg-warning' : level === 'MEDIUM' ? 'bg-info' : 'bg-success'}`;
+        document.getElementById('subCount').innerText = data.subdomain_count || 0;
+        const pwned = (data.breaches?.results || []).filter(b => b.is_pwned).length;
+        document.getElementById('breachCount').innerText = pwned;
+        document.getElementById('moduleCount').innerHTML = `${data.modules_completed || 0}<small>/11</small>`;
+
+        // WHOIS
+        const whois = data.whois || {};
+        document.getElementById('domainName').innerText = whois.domain_name || data.target || '-';
+        document.getElementById('registrar').innerText = whois.registrar?.name || '-';
+        document.getElementById('created').innerText = whois.dates?.created || '-';
+        document.getElementById('expires').innerText = whois.dates?.expires || '-';
+        document.getElementById('domainStatus').innerText = whois.security_check?.is_locked ? 'Locked ✓' : 'Unlocked';
+        document.getElementById('domainStatus').className = whois.security_check?.is_locked ? 'badge bg-success' : 'badge bg-warning';
+
+        // VirusTotal
+        const vt = data.virustotal || {};
+        const mal = vt.detections?.malicious || 0;
+        document.getElementById('vtStatus').innerText = mal > 0 ? 'Suspicious' : 'Clean';
+        document.getElementById('vtStatus').className = mal > 0 ? 'badge bg-danger' : 'badge bg-success';
+        document.getElementById('malicious').innerText = mal;
+        document.getElementById('malicious').className = mal > 0 ? 'badge bg-danger' : 'badge bg-success';
+        document.getElementById('reputation').innerText = vt.community_reputation !== undefined ? vt.community_reputation : 'N/A';
+        document.getElementById('threatTags').innerHTML = (vt.threat_tags || []).slice(0, 5).map(t => `<span class="info-badge">${t}</span>`).join('') || '-';
+
+
+        // Add this inside renderAllData function in index.html
+    const emailIntel = data.email_enumeration || {};
+    const stats = emailIntel.stats || {};
+
+        document.getElementById('totalEmails').innerText = stats.total_emails || 0;
+        document.getElementById('validEmails').innerText = stats.valid_emails || 0;
+        document.getElementById('invalidEmails').innerText = stats.invalid_emails || 0;
+        document.getElementById('riskyEmails').innerText = stats.risky_emails || 0;
+
+        // Populate email lists
+        const groups = emailIntel.email_groups || {};
+        document.getElementById('adminEmails').innerHTML = (groups.admin_accounts || []).map(e => `<div class="alert alert-light py-1"><code>${e.email}</code></div>`).join('') || 'None';
+        // Repeat for supportEmails, personalEmails, etc.
+                // DNS
+            const dns = data.dns || {};
+            let dnsHtml = '';
+            (dns.infrastructure?.ip_addresses || []).forEach(ip => dnsHtml += `<tr><td><strong>A</strong></td><td><code>${ip}</code></td></tr>`);
+            (dns.infrastructure?.mail_servers || []).forEach(mx => dnsHtml += `<tr><td><strong>MX</strong></td><td><code>${mx}</code></td></tr>`);
+            (dns.identity?.nameservers || []).forEach(ns => dnsHtml += `<tr><td><strong>NS</strong></td><td><code>${ns}</code></td></tr>`);
+            document.getElementById('dnsRecords').innerHTML = dnsHtml || '<tr><td colspan="2">-</td></tr>';
+
+            document.getElementById('spf').innerText = dns.security?.spf_policy || '-';
+            document.getElementById('dmarc').innerText = dns.security?.dmarc_policy || '-';
+            document.getElementById('mailProvider').innerText = dns.infrastructure?.mail_provider || '-';
+            document.getElementById('cloudProvider').innerText = dns.infrastructure?.cloud_provider || '-';
+
+        // Subdomains
+        let subHtml = '';
+        const allSubs = new Set();
+        (data.certificates || []).forEach(cert => (cert.subdomains || []).forEach(s => allSubs.add(s)));
+        [...allSubs].forEach(s => subHtml += `<span class="info-badge">${s}</span>`);
+        document.getElementById('subdomainList').innerHTML = subHtml || '<p class="text-muted">-</p>';
+
+        // SHODAN
+        const shodan = data.shodan || {};
+        const geo = shodan.geolocation_and_organization || {};
+        const device = shodan.device_identification || {};
+        
+        document.getElementById('shodanIp').innerText = geo.ip || '-';
+        document.getElementById('org').innerText = geo.organization || '-';
+        document.getElementById('isp').innerText = geo.isp || '-';
+        document.getElementById('country').innerText = (geo.country || '-') + (geo.country_code ? ` (${geo.country_code})` : '');
+        document.getElementById('city').innerText = geo.city || '-';
+        document.getElementById('os').innerText = device.os || '-';
+        document.getElementById('lastUpdate').innerText = device.last_update ? new Date(device.last_update).toLocaleDateString() : '-';
+        
+        let hostHtml = '';
+        (device.hostnames || []).forEach(h => hostHtml += `<span class="info-badge">${h}</span>`);
+        document.getElementById('hostnames').innerHTML = hostHtml || '-';
+        
+        let tagHtml = '';
+        (device.tags || []).forEach(t => tagHtml += `<span class="info-badge">${t}</span>`);
+        document.getElementById('tags').innerHTML = tagHtml || '-';
+
+        // Ports
+        let portHtml = '';
+        (shodan.open_ports_and_services || []).forEach(p => {
+            const banner = shodan.service_banners_and_metadata?.find(b => b.port === p.port) || {};
+            portHtml += `<tr><td><strong>${p.port}</strong></td><td>${p.service_name}</td><td>${banner.product || '-'}</td><td>${banner.version || '-'}</td></tr>`;
+        });
+        document.getElementById('portTable').innerHTML = portHtml || '<tr><td colspan="4">-</td></tr>';
+
+        // Vulnerabilities
+        let vulnHtml = '';
+        (shodan.vulnerability_information || []).forEach(v => vulnHtml += `<div class="alert alert-danger py-2 mb-2"><code>${v}</code></div>`);
+        document.getElementById('vulnList').innerHTML = vulnHtml || '<p class="text-muted">No CVEs detected</p>';
+
+        // Certificates
+        let certHtml = '';
+        (data.certificates || []).forEach(cert => {
+            const color = cert.risk === 'CRITICAL' ? 'danger' : cert.risk === 'HIGH' ? 'warning' : 'success';
+            certHtml += `<div class="alert alert-${color} py-2 mb-2"><strong>${cert.issuer}</strong> - ${cert.date} <span class="badge bg-${color}">${cert.risk}</span></div>`;
+        });
+        document.getElementById('certList').innerHTML = certHtml || '<p class="text-muted">-</p>';
+
+        // WAF
+        let wafHtml = '';
+        (data.waf?.results || []).forEach(w => {
+            wafHtml += `<div class="alert ${w.has_waf ? 'alert-success' : 'alert-danger'} py-2 mb-2"><strong>${w.target}</strong>: ${w.waf_name}</div>`;
+        });
+        document.getElementById('wafList').innerHTML = wafHtml || '<p class="text-muted">-</p>';
+
+        // Breaches
+        let breachHtml = '';
+        const breaches = (data.breaches?.results || []).filter(b => b.is_pwned);
+        if (breaches.length === 0) {
+            breachHtml = '<tr><td colspan="4" class="text-success">✓ No breaches found</td></tr>';
+        } else {
+            breaches.forEach(b => {
+                breachHtml += `<tr><td><code>${b.email}</code></td><td><span class="risk-badge risk-${b.risk_level.toLowerCase()}">${b.risk_level}</span></td><td><small>${(b.data_leaked || []).join(', ')}</small></td><td>${b.breach_count}</td></tr>`;
+            });
+        }
+        document.getElementById('breachTable').innerHTML = breachHtml;
+
+        // Forensics
+        let emailHtml = '', phoneHtml = '', docHtml = '';
+        (data.forensics?.results || []).forEach(res => {
+            (res.emails || []).forEach(e => emailHtml += `<div class="alert alert-info py-1 mb-1"><code>${e}</code></div>`);
+            (res.phones || []).forEach(p => phoneHtml += `<div class="alert alert-info py-1 mb-1"><code>${p}</code></div>`);
+            (res.documents || []).forEach(d => docHtml += `<div class="alert alert-warning py-1 mb-1"><a href="${d.link}" target="_blank">${d.name}</a></div>`);
+        });
+        document.getElementById('emailList').innerHTML = emailHtml || '<p class="text-muted">-</p>';
+        document.getElementById('phoneList').innerHTML = phoneHtml || '<p class="text-muted">-</p>';
+        document.getElementById('docList').innerHTML = docHtml || '<p class="text-muted">-</p>';
+
+        // Directories
+        let dirHtml = '';
+        (data.directories?.results || []).forEach(d => {
+            let dirs = '';
+            (d.directories_found || []).slice(0, 20).forEach(dir => {
+                const statusClass = `status-${dir.status}`;
+                dirs += `<div class="alert alert-light py-1 mb-1"><code>${dir.path}</code> <span class="${statusClass}"><strong>[${dir.status}]</strong></span> <span class="risk-badge risk-${dir.risk.toLowerCase()}">${dir.risk}</span></div>`;
+            });
+            dirHtml += `<div class="mb-3"><h6>${d.target} (${d.total_count} found)</h6>${dirs}</div>`;
+        });
+        document.getElementById('directoriesList').innerHTML = dirHtml || '<p class="text-muted">No directories found</p>';
+    }
+
+    function downloadReport() {
+        if (!currentData) return;
+        window.location.href = `/api/download-report/${currentData.target}`;
+    }
+
+    async function loadHistory() {
+        try {
+            const res = await fetch('/api/scan-history');
+            const data = await res.json();
+            let html = '';
+            (data.history || []).slice(-20).reverse().forEach(h => {
+                const color = h.risk_level === 'CRITICAL' ? 'danger' : h.risk_level === 'HIGH' ? 'warning' : 'success';
+                html += `<tr><td>${h.target}</td><td>${new Date(h.timestamp).toLocaleString()}</td><td><span class="badge bg-${color}">${h.risk_level}</span></td><td>${h.risk_score}/100</td></tr>`;
+            });
+            document.getElementById('historyTable').innerHTML = html || '<tr><td colspan="4">-</td></tr>';
+        } catch (error) { console.error(error); }
+    }
+
+    if (apiKeys.shodan) document.getElementById('shodanKey').value = apiKeys.shodan.substring(0, 10) + '***';
+    if (apiKeys.virustotal) document.getElementById('vtKey').value = apiKeys.virustotal.substring(0, 10) + '***';
+    loadHistory();
+</script>
+</body>
