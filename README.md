@@ -1,47 +1,51 @@
-🛡️ IntelCore | Professional OSINT & Reconnaissance PlatformIntelCore is an advanced, high-performance Open Source Intelligence (OSINT) framework engineered specifically for security researchers, red teams, and digital forensics professionals. The platform automates the complex, multi-stage process of deep reconnaissance by aggregating, normalizing, and analyzing data from 11 specialized intelligence modules. The result is a comprehensive 360-degree security profile of any target domain, providing actionable insights into its digital attack surface.The core philosophy of IntelCore is Passive Reconnaissance. In an era where security perimeters are increasingly sensitive, IntelCore focuses on gathering high-fidelity intelligence without ever making direct, invasive contact with the target's primary infrastructure. This "zero-footprint" approach allows for stealthy assessments that remain invisible to standard Intrusion Detection Systems (IDS), Next-Gen Firewalls, and Endpoint Detection and Response (EDR) solutions.🏗️ System Architecture & WorkflowIntelCore operates on a modular "Gather-Analyze-Report" pipeline. The engine acts as a central orchestrator, managing the concurrent execution of various intelligence scripts, handling API rate limits, and sanitizing raw data before passing it to a heuristic scoring engine.graph TD
-    A[Target Domain] --> B[IntelCore Orchestrator]
-    B --> C{Intelligence Modules}
-    
-    subgraph "Phase 1: Surface Discovery"
-    C --> D[Metadata Intelligence]
-    D --> D1[DNS Forensics / WHOIS / CT Logs]
-    end
-    
-    subgraph "Phase 2: Infrastructure Mapping"
-    C --> E[Hardware & Service Intel]
-    E --> E1[Shodan / WAF Profiling / Vuln Mapping]
-    end
-    
-    subgraph "Phase 3: Exposure & Identity"
-    C --> F[Data Breach Analysis]
-    F --> F1[Credential Leaks / Scraped Forensic Assets]
-    end
-    
-    D1 & E1 & F1 --> G[Heuristic Risk Scoring Engine]
-    G --> H[Real-time Interactive Dashboard]
-    G --> I[13-Page Executive PDF Report]
-🚀 Key Features & Innovations⚡ High-Concurrency Scanning EngineSecurity assessments are inherently time-sensitive. IntelCore utilizes a sophisticated implementation of Python's ThreadPoolExecutor to manage I/O-bound tasks. By executing non-dependent modules—such as directory enumeration and forensic scraping—in parallel threads, the platform achieves a throughput increase of up to 80% compared to traditional sequential scripts. This allows a full-spectrum scan of complex domains to complete in minutes rather than hours.📊 Advanced Composite Risk Scoring (ACRS)IntelCore goes beyond simple data collection by providing intelligent context. Our proprietary Heuristic Risk Engine evaluates the discovered data across five critical threat vectors:Infrastructure Integrity: Audits for the presence of WAFs, identifies misconfigured headers, and checks for service version obsolescence.Data Exposure Analysis: Cross-references discovered emails with dark web breach databases to identify high-risk accounts.Attack Surface Breadth: Quantifies the exposure based on total subdomains, active open ports, and DNS record density.Reputation Intelligence: Aggregates real-time threat scores from over 90 security vendors to detect existing malicious activity.Communication Hygiene: Performs a deep audit of mail security protocols including SPF, DKIM (verification hooks), and DMARC policies.📄 Executive-Ready Reporting EnginePowered by ReportLab and Matplotlib, the platform includes an automated reporting suite. It produces a professional, 13-page security assessment PDF that translates technical jargon into executive summaries. The report includes risk visualization charts, categorized findings tables, and a prioritized remediation roadmap designed for CISOs and technical stakeholders.🛡️ Stealth-First MethodologyStealth is the primary objective of any reconnaissance phase. By pulling 95% of its data from globally distributed "data-lake" APIs (including Shodan, VirusTotal, and HackerTarget), IntelCore ensures your source IP is never logged by the target. This enables long-term, non-attributable monitoring of targets during the pre-engagement phase of a red-team operation.🛠️ Reconnaissance Modules BreakdownThe framework utilizes 11 distinct modules, each designed to exploit a specific vector of attack surface management:ModuleTechnical FunctionalityStrategic Importance & ImpactCT LogsParses Certificate Transparency logs via crt.sh.Uncovers hidden subdomains, internal staging environments, and legacy assets missed by DNS brute-forcing.DNS ReconDeep passive enumeration of A, MX, NS, and TXT records.Identifies cloud providers (AWS/Azure), third-party SaaS integrations, and email security weaknesses.WHOIS DeepRecursive forensics on registration data and historical records.Reveals ownership links, physical office locations, and potential secondary targets through shared registrant emails.Shodan IntelFull IP/Service profiling through the Shodan API.Maps the exact perimeter (SSH, RDP, DBs) and identifies specific CVEs associated with the detected software versions.VirusTotalAggregated threat scores and community reputation audits.Establishes an immediate baseline of the domain's historical reputation and current malicious associations.WAF DetectPassive header analysis and focused provocation payloads.Crucial for identifying the "first line of defense" (Cloudflare, Akamai, AWS WAF) to plan subsequent bypass techniques.Dir EnumValidated discovery of sensitive paths (.env, .git, /admin).Detects critical configuration leaks that often provide direct access to database credentials or source code repositories.Email IntelSMTP consistency checks and naming pattern analysis.Facilitates the mapping of organizational structure and provides targets for authorized social engineering engagements.ForensicsAutomated scraping of HTML comments and file metadata.Harvests "leaked" developer notes, TODO lists, and metadata from public PDFs which often reveal internal usernames.Breach CheckReal-time LeakCheck API integration for credential leaks.Directly quantifies the risk of account takeover (ATO) and credential stuffing attacks using leaked plaintext passwords.Risk ScoringData normalization and heuristic threat assessment.Distills thousands of data points into a single "Threat Score," allowing for rapid prioritization of high-risk targets.⚙️ Installation & Professional Setup1. PrerequisitesPython 3.8+: Recommended for optimal asynchronous performance.Environment: Linux (Ubuntu/Kali) or macOS preferred; Windows fully supported.API Credentials: While a "Basic Mode" is available, full intelligence capabilities require a Shodan API Key and VirusTotal API Key.2. Clone and Initialization# Clone the repository
-git clone [https://github.com/Kartavyajoshi/IntelCore-OSINT.git](https://github.com/Kartavyajoshi/IntelCore-OSINT.git)
-cd IntelCore-OSINT
+# 🌐 Network Project: Advanced OSINT & Recon Framework
 
-# Initialize a virtual environment (Recommended)
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
+![Security](https://img.shields.io/badge/Security-Advanced-red)
+![Status](https://img.shields.io/badge/Status-Development-orange)
 
-# Install dependencies
-pip install -r requirements.txt
-3. Secure ConfigurationIntelCore utilizes a strictly enforced .env architecture for credential management. This ensures your private API keys are never leaked into the Git history.# Create and edit your .env file
-cat <<EOT >> .env
-SH_API_KEY=your_shodan_key_here
-VT_API_KEY=your_virustotal_key_here
-FLASK_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(24))')
-EOT
-4. Deploymentpython app.py
-Once the Flask server initializes, the dashboard is accessible via http://localhost:5000. In a production or shared environment, it is recommended to proxy this through Nginx with TLS enabled.🖥️ Professional Dashboard ExperienceThe IntelCore Web Interface is engineered for high-density information display and rapid analysis:Command Center (Overview): Features a real-time risk gauge and a "Quick Findings" alert system that highlights critical vulnerabilities (e.g., exposed .env files).Infrastructure Intelligence: Interactive modules displaying IP geolocation maps, ISP routing data, and OS-level service fingerprinting.Forensic Repository: Filterable tables for emails and phone numbers, alongside a "Document Vault" for accessing metadata-rich files found during the scan.Scan Persistence: Every reconnaissance mission is archived with full data state preservation, allowing teams to perform longitudinal analysis of a target's attack surface growth.🔒 Security, Ethics & DisclosureAPI Key GovernanceIntelCore implements a rigorous security model for API handling. Credentials are never stored in the database; they are loaded into memory at runtime from environment variables. Under no circumstances should you commit the .env file to a public repository.Operational StealthWhile the platform is 95% passive, the WAF Detection module uses a "Provocation Methodology." It sends a single, harmless request containing common attack patterns to observe the server's response headers. While non-destructive, users should be aware that this specific action may trigger "Alert" logs in high-security environments.Legal DisclaimerIntelCore is intended strictly for authorized security professionals, educational research, and defensive auditing. The developers and contributors assume no liability for the misuse of this tool. Unauthorized reconnaissance against networks or domains without explicit, written permission is illegal in most jurisdictions.📄 LicenseDistributed under the MIT License. See LICENSE for more information. This allows for open-source contribution, commercial integration, and private modification provided the original copyright notice is maintained.Technical Dependencies (requirements.txt)flask            # Asynchronous-ready web framework
-requests         # Robust HTTP/1.1 client for API interactions
-beautifulsoup4   # High-performance DOM parsing for forensics
-reportlab        # Enterprise-grade PDF generation library
-matplotlib       # Statistical visualization and data charting
-dnspython        # Native DNS resolver for security policy audits
-python-dotenv    # Secure environment variable management
-urllib3          # Advanced connection pooling for threading
+An automated, multi-threaded intelligence gathering framework designed to streamline network reconnaissance and forensic analysis. This project integrates industry-standard APIs with custom scraping logic to provide a deep-dive look into any target domain or IP address.
+
+---
+
+## 📖 Project Overview
+The **Network Project** is built for security researchers and investigators who need to move beyond simple pings. It automates the correlation of data between Shodan, VirusTotal, and public breach databases while performing active discovery like WAF detection and directory enumeration.
+
+---
+
+## ✨ Core Features & Modules
+
+The logic is housed within the `/functions` directory for modularity:
+
+* **🔍 Threat Intel:** * `check_shodan_enhanced.py`: Deep infrastructure analysis.
+    * `check_virustotal_advanced.py`: File and URL reputation analysis.
+* **📧 Breach Intelligence:** * `check_breach_leakcheck_public.py`: Scans public leaks for compromised credentials.
+    * `check_found_emails.py`: Aggregates discovered email addresses for the target.
+* **🛠 Network Discovery:**
+    * `dns_recon_advanced.py`: Finds subdomains and DNS records.
+    * `detect_waf.py`: Identifies Web Application Firewalls.
+    * `whois_lookup_deep.py`: Extracts registrar and ownership history.
+* **🧪 Forensic & Advanced Recon:**
+    * `scan_ct_logs_compact.py`: Scans Certificate Transparency logs.
+    * `extract_forensic_details.py`: Pulls metadata and hidden headers.
+* **📊 Reporting & Analysis:**
+    * `def_calculate_risk.py`: Scores the target's security posture.
+    * `generate_premium_report.py`: Produces a polished final report in the `/reports` folder.
+
+---
+
+## 🏗 Directory Structure
+
+
+
+```text
+NETWORK_PROJECT/
+├── .venv/                  # Virtual environment
+├── functions/              # Core logic and module scripts
+│   ├── __pycache__/
+│   ├── parallel_executor.py # Handles multi-threaded execution
+│   ├── run_full_scan.py     # Main orchestrator script
+│   └── [Individual Modules...]
+├── reports/                # Generated JSON/PDF/HTML reports
+├── scans/                  # Cached scan results and logs
+└── templates/              # Formatting templates for reports
