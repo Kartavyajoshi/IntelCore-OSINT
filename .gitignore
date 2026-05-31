@@ -1,6 +1,34 @@
+# Environment config
 .env
+.env.local
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache & compiled code
 __pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases
+*.db
+*.sqlite3
+
+# Logs & temp files
+logs/
+*.log
+tmp/
+brain/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Project output / generated reports
 reports/
+cache/
 scans/
-*.pyc
-.venv

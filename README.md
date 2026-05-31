@@ -1,51 +1,172 @@
-# 🌐 Network Project: Advanced OSINT & Recon Framework
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
-![Security](https://img.shields.io/badge/Security-Advanced-red)
-![Status](https://img.shields.io/badge/Status-Development-orange)
+# ⬡ IntelCore OSINT Platform
 
-An automated, multi-threaded intelligence gathering framework designed to streamline network reconnaissance and forensic analysis. This project integrates industry-standard APIs with custom scraping logic to provide a deep-dive look into any target domain or IP address.
+**Advanced Open Source Intelligence & Reconnaissance Framework**
 
----
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Security](https://img.shields.io/badge/Security-Advanced-dc3545)
+![Modules](https://img.shields.io/badge/Modules-24%2B-7c3aed)
+![License](https://img.shields.io/badge/License-MIT-28a745)
+![Status](https://img.shields.io/badge/Status-Active-00d4ff)
 
-## 📖 Project Overview
-The **Network Project** is built for security researchers and investigators who need to move beyond simple pings. It automates the correlation of data between Shodan, VirusTotal, and public breach databases while performing active discovery like WAF detection and directory enumeration.
+A multi-threaded intelligence gathering framework with a professional desktop GUI.  
+Automates network reconnaissance, breach analysis, and forensic extraction.
 
----
-
-## ✨ Core Features & Modules
-
-The logic is housed within the `/functions` directory for modularity:
-
-* **🔍 Threat Intel:** * `check_shodan_enhanced.py`: Deep infrastructure analysis.
-    * `check_virustotal_advanced.py`: File and URL reputation analysis.
-* **📧 Breach Intelligence:** * `check_breach_leakcheck_public.py`: Scans public leaks for compromised credentials.
-    * `check_found_emails.py`: Aggregates discovered email addresses for the target.
-* **🛠 Network Discovery:**
-    * `dns_recon_advanced.py`: Finds subdomains and DNS records.
-    * `detect_waf.py`: Identifies Web Application Firewalls.
-    * `whois_lookup_deep.py`: Extracts registrar and ownership history.
-* **🧪 Forensic & Advanced Recon:**
-    * `scan_ct_logs_compact.py`: Scans Certificate Transparency logs.
-    * `extract_forensic_details.py`: Pulls metadata and hidden headers.
-* **📊 Reporting & Analysis:**
-    * `def_calculate_risk.py`: Scores the target's security posture.
-    * `generate_premium_report.py`: Produces a polished final report in the `/reports` folder.
+</div>
 
 ---
 
-## 🏗 Directory Structure
+## 🚀 Quick Start
 
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/IntelCore-OSINT.git
+cd IntelCore-OSINT
 
+# 2. Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+source .venv/bin/activate # Linux/macOS
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Configure API keys (optional)
+copy .env.example .env
+# Edit .env with your API keys
+
+# 5. Launch the platform
+python gui.py
+```
+
+---
+
+## 📖 Overview
+
+IntelCore is designed for security researchers and investigators who need to go beyond simple lookups. It automates the correlation of data across multiple intelligence sources while performing active discovery — all from a single desktop interface.
+
+### Key Capabilities
+- **24+ scanning modules** covering DNS, WHOIS, SSL, HTTP, ports, email, phone, social media, and more
+- **Multi-threaded execution** with configurable worker pools and per-module timeouts
+- **Risk scoring engine** that calculates composite security posture from all collected data
+- **PDF/HTML/JSON reporting** with professional formatting
+- **SQLite database** for persistent scan history and trend analysis
+- **Caching system** to avoid redundant API calls
+- **Dark web monitoring** via Ahmia and hidden service scanning
+- **Chained scanning** — automated multi-stage security pipelines
+
+---
+
+## ✨ Module Reference
+
+### 🎯 Reconnaissance
+| Module | Description | API Key |
+|--------|-------------|---------|
+| Full Domain Scan | Orchestrated scan using all enabled modules | Optional |
+| DNS Enumeration | Subdomain bruteforce, zone transfer, record analysis | None |
+| WHOIS & IP Intel | Domain registration, IP geolocation, ASN lookup | None |
+| SSL/TLS Certs | Certificate chain analysis, CT log scanning | None |
+| HTTP & Technology | Header analysis, tech fingerprinting, WAF detection | None |
+| Port Scanner | TCP port scanning with service banner grabbing | None |
+
+### 🔍 Intelligence
+| Module | Description | API Key |
+|--------|-------------|---------|
+| Email OSINT | Breach check, Gravatar, platform presence | Optional |
+| Phone OSINT | Number validation, carrier lookup, spam check | None |
+| Social Media | Username search across 300+ platforms | None |
+| Google Dorking | Advanced OSINT dork query generation | None |
+| Wayback Machine | Historical snapshot analysis via Archive.org | None |
+
+### ⚡ Advanced
+| Module | Description | API Key |
+|--------|-------------|---------|
+| Threat Intel | DNSBL, OTX, URLhaus, ThreatFox, AbuseIPDB | None |
+| Dark Web Scanner | Ahmia search, hidden service monitoring | None |
+| Chained Deep Scan | Multi-stage automated security pipeline | None |
+| Subdomain Takeover | Dangling CNAME detection across cloud services | None |
+
+### 🛠 Tools
+| Module | Description | API Key |
+|--------|-------------|---------|
+| Metadata Extractor | EXIF, PDF, Office document metadata | None |
+| Directory Enum | Web path and directory bruteforce | None |
+| Shodan | Internet-wide device intelligence | **Required** |
+| VirusTotal | Domain/URL/IP reputation check | **Required** |
+| Forensics | Email, secret, API key extraction from web pages | None |
+| Credentials | HIBP, DeHashed, paste site analysis | Optional |
+| WiFi / Devices | Network device discovery and profiling | None |
+| Gov Data | Public records, corporate filings | None |
+| Quick Lookup | Ping, DNS resolve, traceroute, reverse DNS | None |
+
+---
+
+## 🏗 Project Structure
 
 ```text
-NETWORK_PROJECT/
-├── .venv/                  # Virtual environment
-├── functions/              # Core logic and module scripts
-│   ├── __pycache__/
-│   ├── parallel_executor.py # Handles multi-threaded execution
-│   ├── run_full_scan.py     # Main orchestrator script
-│   └── [Individual Modules...]
-├── reports/                # Generated JSON/PDF/HTML reports
-├── scans/                  # Cached scan results and logs
-└── templates/              # Formatting templates for reports
+IntelCore-OSINT/
+├── gui.py                  # Main desktop application (Tkinter)
+├── scan_orchestrator.py    # Multi-phase scan orchestration engine
+├── enhanced_executor.py    # Parallel execution with timeout/retry
+├── config.py               # Centralized configuration (dataclasses)
+├── database.py             # SQLite storage and query layer
+├── cache_manager.py        # Scan result caching
+├── logger.py               # Structured logging
+├── api_utils.py            # HTTP session management & validation
+├── requirements.txt        # Python dependencies
+├── .env.example            # API key template
+│
+├── functions/              # 38 scanning modules
+│   ├── dns_enum_advanced.py
+│   ├── whois_extended.py
+│   ├── certificate_analysis_free.py
+│   ├── technology_detection.py
+│   ├── network_scanner_free.py
+│   ├── email_osint_platform.py
+│   ├── phone_osint_platform.py
+│   ├── social_media_enum.py
+│   ├── google_dorking_osint.py
+│   ├── threat_intel_lookup.py
+│   ├── dark_web_search.py
+│   ├── subdomain_takeover_scanner.py
+│   ├── generate_premium_report.py
+│   ├── html_report_generator.py
+│   └── ... (24 more modules)
+│
+├── reports/                # Generated PDF/HTML/JSON reports
+├── cache/                  # Cached scan results
+└── logs/                   # Application logs
+```
+
+---
+
+## ⚙️ Configuration
+
+The platform is configured via `config.py` using Python dataclasses. A `config.json` file is auto-generated on first run. Key settings:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `max_threads` | 12 | Maximum concurrent scanning threads |
+| `timeout_per_module` | 120s | Per-module execution timeout |
+| `port_range` | 1-1000 | Default port scan range |
+| `cache_ttl` | 24h | How long cached results remain valid |
+
+API keys can be configured via:
+1. The **Settings** panel in the GUI
+2. A `.env` file (copy `.env.example`)
+3. System environment variables
+
+---
+
+## ⚠️ Legal Disclaimer
+
+> **This tool is intended for authorized security testing and educational purposes only.**  
+> Always obtain proper authorization before scanning any target.  
+> The developers are not responsible for misuse of this software.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

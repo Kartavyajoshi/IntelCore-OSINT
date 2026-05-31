@@ -437,7 +437,7 @@ def enumerate_directories_optimized(domain, subdomains=None, max_threads=10):
         found.sort(key=lambda x: (risk_order.get(x['risk'], 4), -x['status']))
         
         elapsed = time.time() - target_start
-        print(f"      [✓] Completed in {elapsed:.2f}s - Found {len(found)} directories")
+        print(f"      [+] Completed in {elapsed:.2f}s - Found {len(found)} directories")
         
         return {
             'target': target,
@@ -471,7 +471,7 @@ def enumerate_directories_optimized(domain, subdomains=None, max_threads=10):
     total_time = time.time() - start_time
     
     print(f"\n{'='*70}")
-    print(f"[✓] SCAN COMPLETE")
+    print(f"[+] SCAN COMPLETE")
     print(f"  Total Directories Found: {total_dirs}")
     print(f"  Critical: {total_critical} | High: {total_high} | Medium: {sum(r['medium'] for r in all_results)}")
     print(f"  Total Checked: {total_scanned} | Time: {total_time:.2f}s")
