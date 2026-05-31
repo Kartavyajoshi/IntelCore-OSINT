@@ -3,28 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntelCore OSINT — Enterprise Wazuh Reconnaissance Platform</title>
+  <title>IntelCore OSINT — Premium Reconnaissance & Vulnerability Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Wazuh Signature Color Palette */
-      --wazuh-primary: #00a0d2;      /* Wazuh Cyan Primary */
-      --wazuh-primary-hover: #008eb8;
-      --wazuh-dark-bg: #111b2d;      /* Wazuh Dark Navy Theme */
-      --wazuh-card-bg: #1d2b44;      /* Wazuh Slate Card */
-      --wazuh-border: #2d3f5d;       /* Wazuh Border Clay */
-      
+      --bg-dark: #07090e;
+      --bg-surface: #0f131a;
+      --bg-card: #151a24;
+      --cyan: #00d4ff;
+      --cyan-glow: rgba(0, 212, 255, 0.12);
+      --purple: #9d4edd;
+      --green: #00e676;
+      --red: #ff3344;
       --text-main: #f1f5f9;
       --text-muted: #8fa0b5;
-      
-      /* Severity indicator colors (Wazuh Standard) */
-      --color-critical: #e03c3c;
-      --color-high: #ff851b;
-      --color-medium: #ffc000;
-      --color-low: #2ecc40;
-      --color-info: #0074d9;
+      --border: #232a36;
     }
 
     * {
@@ -34,349 +29,250 @@
     }
 
     body {
-      font-family: 'Open Sans', sans-serif;
-      background-color: var(--wazuh-dark-bg);
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-dark);
       color: var(--text-main);
-      display: flex;
-      min-height: 100vh;
-      line-height: 1.5;
+      line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* Left Sidebar */
-    .sidebar {
-      width: 260px;
-      background-color: #0c1424;
-      border-right: 1px solid var(--wazuh-border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
+    /* Ambient glow elements */
+    .glow-blob {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--cyan-glow) 0%, rgba(7,9,14,0) 70%);
+      top: -200px;
+      right: -100px;
+      z-index: -1;
+      pointer-events: none;
     }
 
-    .sidebar-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--wazuh-border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .sidebar-header span {
-      color: var(--wazuh-primary);
-    }
-
-    .nav-list {
-      list-style: none;
-      padding: 16px 0;
-      overflow-y: auto;
-      flex-grow: 1;
-    }
-
-    .nav-item {
-      padding: 12px 24px;
-      font-size: 14px;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s;
-    }
-
-    .nav-item:hover {
-      background-color: rgba(255, 255, 255, 0.03);
-      color: #fff;
-    }
-
-    .nav-item.active {
-      background-color: rgba(0, 160, 210, 0.1);
-      color: var(--wazuh-primary);
-      border-left: 3px solid var(--wazuh-primary);
-      font-weight: 600;
-    }
-
-    /* Main Dashboard Layout */
-    .main-content {
-      flex-grow: 1;
-      padding: 40px;
-      overflow-y: auto;
-      background-color: var(--wazuh-dark-bg);
-    }
-
-    .panel-header {
+    /* Navigation */
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--wazuh-border);
-      padding-bottom: 16px;
-      margin-bottom: 30px;
+      padding: 20px 8%;
+      border-bottom: 1px solid var(--border);
+      background-color: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
-    .panel-header h2 {
+    .logo {
       font-size: 24px;
-      font-weight: 600;
+      font-weight: 700;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* Metric Grid Cards */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      margin-bottom: 32px;
+    .logo span {
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan);
     }
 
-    .card {
-      background-color: var(--wazuh-card-bg);
-      border: 1px solid var(--wazuh-border);
-      border-radius: 4px;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    .metric-card {
+    /* Hero Section */
+    .hero {
+      max-width: 1000px;
+      margin: 100px auto;
+      padding: 0 24px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      align-items: center;
     }
 
-    .metric-lbl {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-    }
-
-    .metric-val {
-      font-size: 32px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    /* Table & Alerts (Wazuh Styling) */
-    .table-container {
-      margin-top: 30px;
-    }
-
-    .wazuh-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    .wazuh-table th, .wazuh-table td {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--wazuh-border);
-      font-size: 13.5px;
-    }
-
-    .wazuh-table th {
-      background-color: rgba(12, 20, 36, 0.4);
-      color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 0.5px;
-    }
-
-    .wazuh-table tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.02);
-    }
-
-    /* Wazuh Badges */
     .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 3px;
-      font-size: 11px;
+      background-color: rgba(0, 212, 255, 0.08);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 12px;
       font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 30px;
       text-transform: uppercase;
     }
 
-    .badge-critical { background-color: var(--color-critical); color: #fff; }
-    .badge-high { background-color: var(--color-high); color: #fff; }
-    .badge-medium { background-color: var(--color-medium); color: #000; }
-    .badge-low { background-color: var(--color-low); color: #fff; }
-    .badge-info { background-color: var(--color-info); color: #fff; }
-
-    /* Interactive Report JSON Panel */
-    .report-tabs {
-      display: flex;
-      gap: 12px;
-      border-bottom: 1px solid var(--wazuh-border);
+    h1 {
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 1.1;
       margin-bottom: 24px;
-    }
-
-    .report-tab-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .report-tab-btn.active {
-      color: var(--wazuh-primary);
-      border-bottom-color: var(--wazuh-primary);
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    pre {
-      background-color: #0c1424;
-      border: 1px solid var(--wazuh-border);
-      padding: 20px;
-      border-radius: 4px;
-      overflow-x: auto;
-    }
-
-    code {
-      font-family: 'Fira Code', monospace;
-      font-size: 13px;
       color: #fff;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 19px;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin-bottom: 48px;
+    }
+
+    /* Clean CTA product button */
+    .btn-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background-color: #fff;
+      color: #000;
+      padding: 16px 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-github:hover {
+      background-color: #e6e6e6;
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-github svg {
+      fill: #000;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Product Grid Section */
+    .product-section {
+      padding: 100px 8%;
+      border-top: 1px solid var(--border);
+      background-color: rgba(15, 19, 26, 0.4);
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-title h2 {
+      font-size: 38px;
+      color: #fff;
+    }
+
+    .section-title p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 36px;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      color: var(--cyan);
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 60px 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <span>⬡</span> Wazuh OSINT
-    </div>
-    <ul class="nav-list">
-      <li class="nav-item active" onclick="switchTab(0)">📊 Security Dashboard</li>
-      <li class="nav-item" onclick="switchTab(1)">🔍 Active Reconnaissance</li>
-      <li class="nav-item" onclick="switchTab(2)">📧 Breach Verification</li>
-    </ul>
-  </div>
+  <div class="glow-blob"></div>
 
-  <!-- Main Content -->
-  <div class="main-content">
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span>⬡</span> IntelCore OSINT
+    </div>
+  </header>
+
+  <!-- Hero Landing -->
+  <section class="hero">
+    <div class="badge">Version 5.0 Release</div>
+    <h1>Premium Reconnaissance<br><span>Security Audit Client.</span></h1>
+    <p class="subtitle">An advanced multi-threaded reconnaissance framework. Automate target investigations across subdomains, certificate logs, WHOIS entries, technology signatures, and email breach indexes.</p>
     
-    <!-- Tab 0: Dashboard -->
-    <div class="tab-panel active" id="panel-0">
-      <div class="panel-header">
-        <h2>OSINT Security Dashboard</h2>
-        <span class="badge badge-info">Overview</span>
-      </div>
+    <!-- CTA GitHub Action Button -->
+    <a href="https://github.com/your-username/IntelCore-OSINT" class="btn-github" target="_blank">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+      View on GitHub
+    </a>
+  </section>
 
-      <!-- Wazuh Metric Cards -->
-      <div class="metrics-grid">
-        <div class="card metric-card">
-          <span class="metric-lbl">Risk Classification</span>
-          <span class="badge badge-high" style="align-self: flex-start; margin-top: 4px;">HIGH RISK</span>
-        </div>
-        <div class="card metric-card">
-          <span class="metric-lbl">Composite Threat Score</span>
-          <span class="metric-val" style="color: var(--color-high);">74/100</span>
-        </div>
-        <div class="card metric-card">
-          <span class="metric-lbl">Configured Scanners</span>
-          <span class="metric-val">24 Active</span>
-        </div>
+  <!-- Product Features -->
+  <section class="product-section">
+    <div class="section-title">
+      <h2>Advanced Features</h2>
+      <p>Clean structures configured for security researchers</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Target Reconnaissance</h3>
+        <p>Enumerate DNS records, CT transparency logging metadata, active subdomain scopes, and technological fingerprints in parallel.</p>
       </div>
-
-      <!-- Vulnerability Table -->
-      <div class="card table-container">
-        <h3 style="font-size:18px; margin-bottom:14px; font-weight:600;">🚨 Target Security Vulnerabilities</h3>
-        <table class="wazuh-table">
-          <thead>
-            <tr>
-              <th>Severity</th>
-              <th>Rule Description</th>
-              <th>Source Module</th>
-              <th>Detected Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="badge badge-critical">Critical</span></td>
-              <td>Exposed user credentials in public database breach leaks</td>
-              <td>LeakCheck Scans</td>
-              <td>Indexed 3 accounts compromised</td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-high">High</span></td>
-              <td>Subdomain takeover vector found on target zone</td>
-              <td>Takeover Scanner</td>
-              <td>Dangling cloud CNAME maps detected</td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-medium">Medium</span></td>
-              <td>TCP Open services ports discovered publicly</td>
-              <td>Port Scanner</td>
-              <td>Ports: 80, 443, 8080 active</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="feature-card">
+        <div class="feature-icon">🚪</div>
+        <h3>Infrastructure Scanning</h3>
+        <p>Identify active open ports running under standard services (80, 443, 8080) and run subdomain takeover validations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📧</div>
+        <h3>Breach Intelligence</h3>
+        <p>Integrate automated email credential checks against public breaches databases utilizing LeakCheck and HIBP APIs.</p>
       </div>
     </div>
+  </section>
 
-    <!-- Tab 1: Active Recon -->
-    <div class="tab-panel" id="panel-1">
-      <div class="panel-header">
-        <h2>Active Reconnaissance</h2>
-        <span class="badge badge-info">Active Scans</span>
-      </div>
-      <div class="card">
-        <h3 style="font-size:16px; margin-bottom:12px;">Active DNS Scope Discovery Findings</h3>
-        <pre><code>[
-  {"subdomain": "api.target.com", "ip": "104.244.42.1", "status": "resolved"},
-  {"subdomain": "dev.target.com", "ip": "104.244.42.2", "status": "dangling CNAME"},
-  {"subdomain": "mail.target.com", "ip": "104.244.42.3", "status": "resolved"}
-]</code></pre>
-      </div>
-    </div>
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 IntelCore OSINT Platform. Authorized security audits only.</p>
+  </footer>
 
-    <!-- Tab 2: Breach Verification -->
-    <div class="tab-panel" id="panel-2">
-      <div class="panel-header">
-        <h2>Breach Logs Analysis</h2>
-        <span class="badge badge-info">Breach Logs</span>
-      </div>
-      <div class="card">
-        <h3 style="font-size:16px; margin-bottom:12px;">Credentials Breach Log Entries</h3>
-        <pre><code>{
-  "email": "security@target.com",
-  "breached": true,
-  "sources": ["Collection #1", "Apollo Ledger"],
-  "leaked_data": ["Passwords", "Usernames", "IP Addresses"]
-}</code></pre>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    function switchTab(index) {
-      // Toggle Nav Selection
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach((item, i) => {
-        if (i === index) item.classList.add('active');
-        else item.classList.remove('active');
-      });
-
-      // Toggle Display Panels
-      const panels = document.querySelectorAll('.tab-panel');
-      panels.forEach((p, i) => {
-        if (i === index) p.classList.add('active');
-        else p.classList.remove('active');
-      });
-    }
-  </script>
 </body>
 </html>
